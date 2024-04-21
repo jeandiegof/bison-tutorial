@@ -11,7 +11,8 @@ extern int yylex (void);
 %token END
 %token END_OF_FILE
 
-%define api.value.type { double }
+%code requires { #include "asd.h" }
+%define api.value.type { asd_tree_t* }
 %define parse.error verbose
 %start Input
 
@@ -22,12 +23,24 @@ Input: Input Line
 
 Line: END
 Line: END_OF_FILE { return EOF; }
-Line: E END { fprintf(stdout, "Expressão aritmética reconhecida com sucesso. Valor: %f.\n", $1); }
+Line: E END {
+  fprintf(stdout, "Expressão aritmética reconhecida com sucesso.\n", $1); 
+  asd_print_graphviz($1);
+  asd_free($1);
+}
 
-E: E PLUS T { $$ = $1 + $3; }
+E: E PLUS T {
+  $$ = asd_new("+");
+  asd_add_child($$, $1);
+  asd_add_child($$, $3);
+}
 E: T { $$ = $1; }
 
-T: T TIMES F { $$ = $1 * $3; }
+T: T TIMES F {
+  $$ = asd_new("*");
+  asd_add_child($$, $1);
+  asd_add_child($$, $3);
+}
 T: F { $$ = $1; }
 
   // $1 is the opening (, $2 is the expression
