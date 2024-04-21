@@ -5,14 +5,22 @@ int yyerror (char const *s);
 extern int yylex (void);
 %}
 
-%token NUMBER
+%union {
+  double valor;
+  asd_tree_t *arvore;
+}
+
+%token<valor> NUMBER
 %token PLUS TIMES
 %token LEFT RIGHT
 %token END
 %token END_OF_FILE
 
+%type<arvore> E
+%type<arvore> T
+%type<arvore> F
+
 %code requires { #include "asd.h" }
-%define api.value.type { asd_tree_t* }
 %define parse.error verbose
 %start Input
 
@@ -30,14 +38,14 @@ Line: E END {
 }
 
 E: E PLUS T {
-  $$ = asd_new("+");
+  $$ = asd_new("+", $1->value + $3->value);
   asd_add_child($$, $1);
   asd_add_child($$, $3);
 }
 E: T { $$ = $1; }
 
 T: T TIMES F {
-  $$ = asd_new("*");
+  $$ = asd_new("*", $1->value * $3->value);
   asd_add_child($$, $1);
   asd_add_child($$, $3);
 }
@@ -46,7 +54,9 @@ T: F { $$ = $1; }
   // $1 is the opening (, $2 is the expression
 F: LEFT E RIGHT { $$ = $2; }
   // the value of this expression is the number itself
-F: NUMBER { $$ = $1; }
+F: NUMBER {
+  $$ = asd_new("number", $1);
+}
 
 %%
 

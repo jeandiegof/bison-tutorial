@@ -4,7 +4,7 @@
 #include "asd.h"
 #define ARQUIVO_SAIDA "saida.dot"
 
-asd_tree_t *asd_new(const char *label)
+asd_tree_t *asd_new(const char *label, double value)
 {
   asd_tree_t *ret = NULL;
   ret = calloc(1, sizeof(asd_tree_t));
@@ -12,6 +12,7 @@ asd_tree_t *asd_new(const char *label)
     ret->label = strdup(label);
     ret->number_of_children = 0;
     ret->children = NULL;
+    ret->value = value;
   }
   return ret;
 }
@@ -69,7 +70,7 @@ static void _asd_print_graphviz (FILE *foutput, asd_tree_t *tree)
 {
   int i;
   if (tree != NULL){
-    fprintf(foutput, "  %ld [ label=\"%s\" ];\n", (long)tree, tree->label);
+    fprintf(foutput, "  %ld [ label=\"%s [%.2f]\" ];\n", (long)tree, tree->label, tree->value);
     for (i = 0; i < tree->number_of_children; i++){
       fprintf(foutput, "  %ld -> %ld;\n", (long)tree, (long)tree->children[i]);
       _asd_print_graphviz(foutput, tree->children[i]);

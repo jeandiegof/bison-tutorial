@@ -14,7 +14,7 @@ real {integer}("."{integer})?{exponent}?
 %%
 
 {white} { /* Vamos ignorar os espaços em branco */ }
-{real} { yylval = asd_new(yytext); return NUMBER; }
+{real} { yylval.valor = atof(yytext); return NUMBER; }
 
 "+" return PLUS;
 "*" return TIMES;
